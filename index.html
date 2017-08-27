@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        *{margin: 0;padding: 0;}
+        body{overflow: hidden;}
+        .balloon{
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100px;
+            height: 100px;
+            background-color: antiquewhite;
+            /*css3圆角属性：*/
+            border-radius: 50% 50% 25% 50%;
+            transform: rotate(45deg);/*顺时针旋转45度*/
+            /*盒子阴影 x位移  y位移  羽化  半径  颜色 内外阴影*/
+            box-shadow: -10px -10px 80px -10px orangered inset;
+            cursor: pointer;
+        }
+        .balloon::after{
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: 2px;
+            transform: rotate(-45deg);
+            border: 6px solid transparent;
+            border-bottom-color: darkorange;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var num=10;
+        var wH=window.innerHeight;
+        var wW=window.innerWidth;
+        var bZ=150;
+        var balloons=[];
+        var timer=null;
+        init(num);
+        recall();//动画
+        function init(num){
+            var fragment=document.createDocumentFragment();//创建DOM片段
+            for(var i=0;i<num;i++){
+//                var randomX=Math.floor(Math.random()*wW);//内置对象的方法来实现转换成整数
+                var randomX=~~(Math.random()*(wW-bZ));//算法来实现转换成整数  位运算  转换成二进制
+                randomX=Math.max(0,randomX);
+                var oBalloon=document.createElement("div");//创建一个div
+                oBalloon.className="balloon";
+                oBalloon.style.top=wH+'px';//改变top
+                oBalloon.style.left=randomX+'px';//横向随机
+                oBalloon.speed=~~(Math.random()*6)+1;//自定义属性
+                balloons.push(oBalloon);
+                fragment.appendChild(oBalloon);
+            }
+            document.body.appendChild(fragment);
+        }
+        move();
+        function move(){
+            for(var i= 0, len=balloons.length;i<len;i++){
+                balloons[i].style.top=balloons[i].offsetTop-balloons[i].speed+'px';
+            }
+        }
+        document.body.addEventListener('click', function (event) {
+            if(event.target.className==='balloon'){
+//                alert("1");
+                //判断触发点击事件的元素类名是不是气球
+        //                event.target.parentNode.removeChild(event.target);
+                boom.call(event.target,function(){//替换函数内部的this去。。。
+                    this.parentNode.removeChild(this);
+                    init(1);
+                }.bind(event.target));
+            }
+        })
+        function boom(cb){//cb代表传的参数
+            this.timer=setInterval(function(){
+                if(this.offsetWidth<10){
+                    clearInterval(this.timer);
+                    //移除节点
+                    cb&&cb();//如果cb存在则执行
+                }
+                this.speed++;
+                this.style.width=this.offsetWidth-6+"px";
+                this.style.height=this.offsetHeight-6+'px';
+            }.bind(this),1000/30)
+        }
+
+        function recall(){
+            move();
+            timer=setTimeout(recall,1000/30);//arguments.callee就是函数本身
+        }
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
