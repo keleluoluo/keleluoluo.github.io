@@ -111,7 +111,7 @@
 					<p>你的"变色龙"分数：{{chameleon}}</p>
 				</div>
 				<div class="explain">
-					<p>你的测试结果是“{{result}}”</p>
+					<p>你的测试结果是“{{result.join('、')}}”</p>
 					<!-- <p>假若你有某一项分远远高于其它四项，你就是典型的这种属性；</p>
 					<p>假若你有某两项分大大超过其它三项，你是这两种动物的综合；</p>
 					<p>假若你各项分数都比较接近，恭喜你，你是一个面面俱到近似完美性格的人；</p>
@@ -296,7 +296,7 @@
 						owl: 0,
 						chameleon: 0,
 						flag: true,
-						result:''
+						result:[]
 					}
 				},
 				created() {
@@ -313,7 +313,7 @@
 					save() {
 						for (var i = 0; i < this.list.length; i++) {
 							if (!this.list[i].pick) {
-								alert('你还有题目未选择！')
+								alert('你第'+(i+1)+'题还未选择！')
 								return false
 							}
 							this.tiger = Number(this.list[4].pick) + Number(this.list[9].pick) + Number(this.list[13]
@@ -334,22 +334,18 @@
 								26].pick);
 						}
 						var max = Math.max(this.tiger, this.peacock, this.panda, this.owl, this.chameleon);
+						this.result=[]
 						switch (max) {
 							case this.tiger:
-								this.result='老虎型';
-								break;
+								this.result.push('老虎型');
 							case this.peacock:
-								this.result='孔雀型';
-								break;
+								this.result.push('孔雀型');
 							case this.panda:
-								this.result='熊猫型';
-								break;
+								this.result.push('熊猫型');
 							case this.owl:
-								this.result='猫头鹰型';
-								break;
+							    this.result.push('猫头鹰型');
 							case this.chameleon:
-								this.result='变色龙型';
-								break;
+								this.result.push('变色龙型');
 						}
 						this.flag = false;
 						$('html,body').animate({
