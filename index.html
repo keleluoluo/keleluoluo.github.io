@@ -334,18 +334,22 @@
 								26].pick);
 						}
 						var max = Math.max(this.tiger, this.peacock, this.panda, this.owl, this.chameleon);
-						this.result=[]
-						switch (max) {
-							case this.tiger:
-								this.result.push('老虎型');
-							case this.peacock:
-								this.result.push('孔雀型');
-							case this.panda:
-								this.result.push('熊猫型');
-							case this.owl:
-							    this.result.push('猫头鹰型');
-							case this.chameleon:
-								this.result.push('变色龙型');
+						console.log(max)
+						this.result=[];
+						if(max==this.tiger){
+							this.result.push('老虎型');
+						}
+						if(max==this.peacock){
+							this.result.push('孔雀型');
+						}
+						if(max==this.panda){
+							this.result.push('熊猫型');
+						}
+						if(max==this.owl){
+							this.result.push('猫头鹰型');
+						}
+						if(max==this.chameleon){
+							this.result.push('变色龙型');
 						}
 						this.flag = false;
 						$('html,body').animate({
