@@ -23,7 +23,7 @@
         #app {
             display: flex;
             flex-direction: column;
-            width: 400px;
+            width: 350px;
             margin: 0 auto;
         }
         
@@ -63,9 +63,12 @@
             },
             methods: {
                 create() {
-                    this.data = []
-                    for (let i = 0; i < 20; i++) {
-                        this.data.push(Math.floor(Math.random() * (80 - 1)) + 1)
+                    this.data = [];
+                    if (this.data.length < 20) {
+                        var n = Math.floor(Math.random() * (80 - 1)) + 1;
+                        if (this.data.indexOf(n) == -1) {
+                            this.data.push(n)
+                        }
                     }
                     for (let i = 0; i < this.data.length - 1; i++) {
                         for (let j = 0; j < this.data.length - 1 - i; j++) {
