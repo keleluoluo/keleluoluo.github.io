@@ -48,6 +48,10 @@
         <div>
             <span v-for="item in data">{{item}}</span>
         </div>
+        <div @click="happy" class="button">快乐八</div>
+        <div>
+            <span v-for="item in list">{{item}}</span>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script>
@@ -55,7 +59,8 @@
             el: '#app',
             data() {
                 return {
-                    data: []
+                    data: [],
+                    list: []
                 }
             },
             created() {
@@ -65,6 +70,21 @@
                 create() {
                     this.data = []
                     for (let i = 0; i < 20; i++) {
+                        this.data.push(Math.floor(Math.random() * (80 - 1)) + 1)
+                    }
+                    for (let i = 0; i < this.data.length - 1; i++) {
+                        for (let j = 0; j < this.data.length - 1 - i; j++) {
+                            if (this.data[j] > this.data[j + 1]) {
+                                var temp = this.data[j];
+                                this.data[j] = this.data[j + 1];
+                                this.data[j + 1] = temp;
+                            }
+                        }
+                    }
+                },
+                happy() {
+                    this.list = []
+                    for (let i = 0; i < 8; i++) {
                         this.data.push(Math.floor(Math.random() * (80 - 1)) + 1)
                     }
                     for (let i = 0; i < this.data.length - 1; i++) {
