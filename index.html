@@ -70,7 +70,10 @@
                 create() {
                     this.data = []
                     for (let i = 0; i < 20; i++) {
-                        this.data.push(Math.floor(Math.random() * (80 - 1)) + 1)
+                        var n = Math.floor(Math.random() * (80 - 1)) + 1;
+                        if (this.data.indexOf(n) == -1) {
+                            this.data.push(n)
+                        }
                     }
                     for (let i = 0; i < this.data.length - 1; i++) {
                         for (let j = 0; j < this.data.length - 1 - i; j++) {
@@ -85,7 +88,10 @@
                 happy() {
                     this.list = []
                     for (let i = 0; i < 8; i++) {
-                        this.list.push(Math.floor(Math.random() * (80 - 1)) + 1)
+                        var n = Math.floor(Math.random() * (80 - 1)) + 1;
+                        if (this.list.indexOf(n) == -1) {
+                            this.list.push(n)
+                        }
                     }
                     for (let i = 0; i < this.list.length - 1; i++) {
                         for (let j = 0; j < this.list.length - 1 - i; j++) {
