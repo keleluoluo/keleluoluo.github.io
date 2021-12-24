@@ -64,7 +64,7 @@
         <div style="margin-top:50px;" @click="double" class="button">双色球</div>
         <div>
             <span v-for="item in doublearr">{{item}}</span>
-            <span class="blue">{{blue}}</span>
+            <span class="blue" v-if="blue">{{blue}}</span>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
@@ -130,7 +130,7 @@
                     for (let i = 0; i < this.doublearr.length - 1; i++) {
                         for (let j = 0; j < this.doublearr.length - 1 - i; j++) {
                             if (this.doublearr[j] > this.doublearr[j + 1]) {
-                                var temp = this.bigarr[j];
+                                var temp = this.doublearr[j];
                                 this.doublearr[j] = this.doublearr[j + 1];
                                 this.doublearr[j + 1] = temp;
                             }
