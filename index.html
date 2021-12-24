@@ -140,7 +140,7 @@
                 },
                 create() {
                     this.data = []
-                    if (data.length != 20) {
+                    if (this.data.length != 20) {
                         var n = Math.floor(Math.random() * (80 - 1)) + 1;
                         if (this.data.indexOf(n) == -1) {
                             this.data.push(n)
