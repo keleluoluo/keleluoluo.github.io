@@ -20,6 +20,10 @@
             margin-right: 5px;
         }
         
+        .blue {
+            background: blue !important;
+        }
+        
         #app {
             display: flex;
             flex-direction: column;
@@ -52,6 +56,16 @@
         <div>
             <span v-for="item in list">{{item}}</span>
         </div>
+        <div style="margin-top:50px;" @click="big" class="button">大乐透</div>
+        <div>
+            <span v-for="item in bigarr">{{item}}</span>
+            <span class="blue" v-for="item in bigBlue">{{item}}</span>
+        </div>
+        <div style="margin-top:50px;" @click="double" class="button">双色球</div>
+        <div>
+            <span v-for="item in doublearr">{{item}}</span>
+            <span class="blue">{{blue}}</span>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script>
@@ -60,13 +74,70 @@
             data() {
                 return {
                     data: [],
-                    list: []
+                    list: [],
+                    bigarr: [],
+                    bigBlue: [],
+                    doublearr: [],
+                    blue: ''
                 }
             },
             created() {
 
             },
             methods: {
+                big() {
+                    this.bigarr = []
+                    for (let i = 0; i < 5; i++) {
+                        var n = Math.floor(Math.random() * (35 - 1)) + 1;
+                        if (this.bigarr.indexOf(n) == -1) {
+                            this.bigarr.push(n)
+                        }
+                    }
+                    for (let i = 0; i < this.bigarr.length - 1; i++) {
+                        for (let j = 0; j < this.bigarr.length - 1 - i; j++) {
+                            if (this.bigarr[j] > this.bigarr[j + 1]) {
+                                var temp = this.bigarr[j];
+                                this.bigarr[j] = this.bigarr[j + 1];
+                                this.bigarr[j + 1] = temp;
+                            }
+                        }
+                    }
+                    this.bigBlue = []
+                    for (let i = 0; i < 2; i++) {
+                        var n = Math.floor(Math.random() * (12 - 1)) + 1;
+                        if (this.bigBlue.indexOf(n) == -1) {
+                            this.bigBlue.push(n)
+                        }
+                    }
+                    for (let i = 0; i < this.bigBlue.length - 1; i++) {
+                        for (let j = 0; j < this.bigBlue.length - 1 - i; j++) {
+                            if (this.bigBlue[j] > this.bigBlue[j + 1]) {
+                                var temp = this.bigBlue[j];
+                                this.bigBlue[j] = this.bigBlue[j + 1];
+                                this.bigBlue[j + 1] = temp;
+                            }
+                        }
+                    }
+                },
+                double() {
+                    this.doublearr = []
+                    for (let i = 0; i < 6; i++) {
+                        var n = Math.floor(Math.random() * (33 - 1)) + 1;
+                        if (this.doublearr.indexOf(n) == -1) {
+                            this.doublearr.push(n)
+                        }
+                    }
+                    for (let i = 0; i < this.doublearr.length - 1; i++) {
+                        for (let j = 0; j < this.doublearr.length - 1 - i; j++) {
+                            if (this.doublearr[j] > this.doublearr[j + 1]) {
+                                var temp = this.bigarr[j];
+                                this.doublearr[j] = this.doublearr[j + 1];
+                                this.doublearr[j + 1] = temp;
+                            }
+                        }
+                    }
+                    this.blue = Math.floor(Math.random() * (16 - 1)) + 1;
+                },
                 create() {
                     this.data = []
                     for (let i = 0; i < 20; i++) {
