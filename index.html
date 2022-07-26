@@ -439,8 +439,7 @@
                             .getUserMedia(constraints)
                             .then(stream => {
                                 _this.localStream = stream;
-                                window.src = stream
-                                this.localVideo.srcObject = window.src
+                                this.localVideo.srcObject = stream
                                 return navigator.mediaDevices.enumerateDevices();
                             })
                             .then(res => {
