@@ -93,7 +93,7 @@
     <div id="app">
         <button @click="toggleCamera">切换摄像头</button>
         <button v-for="(item,index) in dataList" :key="index" @click="videoClick(item)">{{item.label}}</button>
-        <video id="videoDom" ref="videoDom" autoplay></video>
+        <video id="videoDom" ref="videoDom" autoplay playsinline></video>
     </div>
     <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
     <script>
