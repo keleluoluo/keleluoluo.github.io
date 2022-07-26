@@ -1,96 +1,204 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>摄像头切换</title>
+    <style type="text/css">
+        body {
+            background-color: #000;
+        }
+        
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        
+        #localVideo {
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #remoteVideo {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 65vw;
+            height: 35vh;
+            z-index: -1;
+            width: 0;
+            height: 0;
+        }
+        
+        .zindexClass {
+            z-index: 99 !important;
+        }
+        
+        .circleButton {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 20vh;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            z-index: 99;
+        }
+        
+        .Connect {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .hangUp {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .Flip {
+            position: fixed;
+            top: 50px;
+            left: 50px;
+            z-index: 99;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .textstyle {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            color: #fff;
+            font-size: 14px;
+        }
+        /* video::-webkit-media-controls-enclosure {
+				overflow: hidden;
+				position: fixed;
+				bottom: 50px;
+				left: 0;
+				right: 0;
+			}
 
+			video::-webkit-media-controls-panel {
+				width: calc(100% + 30px);
+			} */
+    </style>
 </head>
 
 <body>
+    <div id="app">
+        <button @click="toggleCamera">切换摄像头</button>
+        <button v-for="(item,index) in dataList" :key="index" @click="videoClick(item)">{{item.count}}</button>
+        <video id="videoDom" ref="videoDom" autoplay playsinline></video>
+    </div>
+    <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    currentStream: undefined,
+                    dataList: [],
+                    toggle: true
 
-    <header>
-        <h1>调用摄像头</h1>
-    </header>
-
-    <main>
-        <div id="controls">
-        </div>
-        <video id="videodemo" autoplay playsinline></video><br>
-        <button id="stopCamera">关闭摄像头</button>
-    </main>
-</body>
-<script>
-    // 根据id获取video元素
-    const video = document.getElementById('videodemo');
-    // 根据id获取button元素
-    const button = document.getElementById('button');
-    // 定义一个变量，用来存储音视频流，在切换摄像头和关闭摄像头时用
-    let currentStream;
-
-    // 此函数是为了关闭摄像头流
-    function stopMediaTracks(stream) {
-        stream.getTracks().forEach(track => {
-            track.stop();
-        });
-    }
-
-    // 此方法是获取到可用的设备数量（包括可用的音频数量和摄像头数量）
-    function gotDevices(mediaDevices) {
-        // 获取到controls元素是为了方便往里面添加可用的摄像头按钮
-        const controls = document.getElementById('controls');
-        // 循环为了方便在第二次点击摄像头按钮再次获取设备数量时将已存在的设备数量清空
-        for (var i = 0; i < controls.children.length; i++) {
-            console.log(controls.children[i])
-            controls.children[i].remove();
-        }
-        let count = 1;
-        // mediaDevices是获取到的可用设备数量（包括音频设备和摄像头设备）
-        mediaDevices.forEach(mediaDevice => {
-            // if判断是为了将摄像头设备遍历出来，使用videoinput判断（videoinput是摄像头设备）
-            if (mediaDevice.kind === 'videoinput') {
-                controls.value = mediaDevice.deviceId; //deviceId是摄像头的id字符串，我们切换摄像头的时候用到
-                const label = mediaDevice.label || `Camera ${count++}`;
-                var button = document.createElement("button");
-                button.innerHTML = label
-                button.addEventListener('click', function(ev) {
-                    console.log(mediaDevice.deviceId)
-                    if (typeof currentStream !== 'undefined') {
-                        stopMediaTracks(currentStream);
-                    }
-                    const videoConstraints = {};
-                    videoConstraints.deviceId = {
-                        exact: mediaDevice.deviceId
-                    };
-                    const constraints = {
-                        video: videoConstraints,
-                        audio: true
-                    };
-                    navigator.mediaDevices
-                        .getUserMedia(constraints)
-                        .then(stream => {
-                            currentStream = stream;
-                            video.srcObject = stream;
-                            return navigator.mediaDevices.enumerateDevices();
+                }
+            },
+            methods: {
+                getdatalist() {
+                    let _this = this
+                    console.log('调用成功')
+                    navigator.mediaDevices.enumerateDevices().then(res => {
+                        this.gotDevices(res)
+                        _this.dataList.forEach(res => {
+                            if (res.count == '1') {
+                                _this.videoClick(res)
+                            }
                         })
-                        .then(gotDevices)
-                        .catch(error => {
-                            console.error(error);
-                        });
-                })
-                controls.appendChild(button);
+                    });
+                },
+                toggleCamera() {
+                    this.getdatalist()
+                    let _this = this
+                    this.toggle = !this.toggle
+                    if (this.dataList) {
+                        if (this.toggle) {
+                            console.log('前置')
+                                // 前置
+                            _this.dataList.forEach(res => {
+                                if (res.count == '1') {
+                                    _this.videoClick(res)
+                                }
+                            })
+                        } else {
+                            console.log('后置')
+                            console.log(_this.dataList)
+                            _this.videoClick(_this.dataList[_this.dataList.length - 1])
+                                // 后置
+                        }
+                    }
+
+                },
+                stopMediaTracks(stream) {
+                    stream.getTracks().forEach(track => {
+                        track.stop();
+                    });
+                },
+                videoClick(item) {
+                    let _this = this
+
+                    if (item) {
+                        if (typeof _this.currentStream !== "undefined") {
+                            _this.stopMediaTracks(_this.currentStream);
+                        }
+                        const videoConstraints = {};
+                        console.log('设备')
+                        console.log(JSON.stringify(item))
+                        console.log(item.deviceId)
+                        videoConstraints.deviceId = {
+                            exact: item.deviceId
+                        };
+                        const constraints = {
+                            video: videoConstraints,
+                            audio: false
+                        };
+                        console.log(constraints)
+                        navigator.mediaDevices
+                            .getUserMedia(constraints)
+                            .then(stream => {
+                                _this.currentStream = stream;
+                                window.src = stream
+                                document.getElementsByTagName('video')[0].srcObject = window.src
+                                return navigator.mediaDevices.enumerateDevices();
+                            })
+                            .then(res => {
+                                _this.gotDevices(res)
+                            })
+                            .catch(error => {
+                                console.log(error + '出错');
+                            });
+                    }
+
+                },
+                gotDevices(mediaDevices) {
+                    let _this = this
+                    const controls = document.getElementById("controls");
+                    const video = document.getElementById("videoDom")
+                    this.dataList = []
+                    let count = 1;
+                    mediaDevices.forEach(mediaDevice => {
+                        if (mediaDevice.kind === "videoinput") {
+                            mediaDevice.count = `${count++}`
+                            _this.dataList.push(mediaDevice)
+                        }
+                    });
+                },
             }
-        });
-    }
-    navigator.mediaDevices.enumerateDevices().then(gotDevices);
-    const stopButton = document.getElementById('stopCamera')
-    stopButton.addEventListener('click', function(ev) {
-        if (typeof currentStream !== 'undefined') {
-            stopMediaTracks(currentStream);
-        }
-    })
-</script>
+        })
+    </script>
+</body>
 
 </html>
