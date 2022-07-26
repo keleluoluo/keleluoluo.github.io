@@ -28,6 +28,8 @@
             width: 65vw;
             height: 35vh;
             z-index: -1;
+            width: 0;
+            height: 0;
         }
         
         .zindexClass {
@@ -46,13 +48,13 @@
         }
         
         .Connect {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
         }
         
         .hangUp {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
         }
         
         .Flip {
@@ -63,13 +65,24 @@
             width: 40px;
             height: 40px;
         }
+        /* video::-webkit-media-controls-enclosure {
+				overflow: hidden;
+				position: fixed;
+				bottom: 50px;
+				left: 0;
+				right: 0;
+			}
+
+			video::-webkit-media-controls-panel {
+				width: calc(100% + 30px);
+			} */
     </style>
 </head>
 
 <body>
     <div id="app">
         <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls></video>
-        <video :class="isaccept?'zindexClass':''" id="remoteVideo" :src="remoteVideo && remoteVideo.srcObject?remoteVideo.srcObject:''" ref="remoteVideo" autoplay controls></video>
+        <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
         <div class="wrap">
             <img class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="flipHandler">
             <!-- <button type="button" id="requestVideo" style="position: fixed;left: 50%;top: 50%;"
@@ -118,7 +131,7 @@
                     remoteVideo: '',
                     codecPreferences: '',
                     recordButton: '',
-                    localUrl: '',
+                    localUrl: 'https://api.ejoydg.com/fileMiniIo/iamges/public/2022/07/08/d3e863db3c104b8d9af599ff3edf52c9.mp4',
                     remoteUrl: ''
                 }
             },
@@ -196,8 +209,26 @@
                                     this.handleCandidate(msg);
                                     break;
                                 }
+                            case "hangup":
+                                {
+                                    handleHangup(msg);
+                                    break;
+                                }
                         }
                     };
+                },
+                handleHangup() {
+                    if (!this.pc) {
+                        console.error('no peer connection');
+                        return;
+                    }
+                    this.pc.close();
+                    this.pc = null;
+                    if (this.localStream) {
+                        this.localStream.getTracks().forEach(track => track.stop());
+                        this.localStream = null;
+                    }
+                    console.log('hangup');
                 },
                 requestVideo() {
                     this.watch();
@@ -226,30 +257,31 @@
                 },
 
                 acceptButton() {
-                    this.acceptButton = true;
-                    navigator.mediaDevices
-                        .getUserMedia({
-                            audio: true,
-                            video: true,
-                        })
-                        .then((res) => {
-                            this.localStream = res;
-                            this.localUrl = this.localStream;
-                            this.localVideo.srcObject = this.localStream;
-                            this.createPeerConnection();
+                    this.localVideo.play();
+                    // this.acceptButton = true;
+                    // navigator.mediaDevices
+                    // 	.getUserMedia({
+                    // 		audio: true,
+                    // 		video: true,
+                    // 	})
+                    // 	.then((res) => {
+                    // 		this.localStream = res;
+                    // 		this.localUrl = this.localStream;
+                    // 		this.localVideo.srcObject = this.localStream;
+                    // 		this.createPeerConnection();
 
-                            this.pc.createOffer().then((offer) => {
-                                this.pc.setLocalDescription(offer);
-                                this.send({
-                                    type: "offer",
-                                    from: this.myId,
-                                    to: this.toId,
-                                    data: offer,
-                                });
-                            });
-                            this.localVideo.play();
-                            this.remoteVideo.play();
-                        });
+                    // 		this.pc.createOffer().then((offer) => {
+                    // 			this.pc.setLocalDescription(offer);
+                    // 			this.send({
+                    // 				type: "offer",
+                    // 				from: this.myId,
+                    // 				to: this.toId,
+                    // 				data: offer,
+                    // 			});
+                    // 		});
+                    // 		this.localVideo.play();
+                    // 		this.remoteVideo.play();
+                    // 	});
                 },
 
                 handleOffer(msg) {
