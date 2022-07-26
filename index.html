@@ -128,11 +128,7 @@
                         if (this.toggle) {
                             console.log('前置')
                                 // 前置
-                            _this.dataList.forEach(res => {
-                                if (res.count == '1') {
-                                    _this.videoClick(res)
-                                }
-                            })
+                            _this.videoClick(_this.dataList[0])
                         } else {
                             console.log('后置')
                             console.log(_this.dataList)
