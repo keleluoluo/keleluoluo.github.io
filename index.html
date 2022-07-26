@@ -397,7 +397,7 @@
                         // this.toggle = !this.toggle
                     this.Flip = !this.Flip;
                     if (this.dataList) {
-                        if (this.Flip) {
+                        if (!this.Flip) {
                             console.log('前置')
                             _this.videoClick(_this.dataList[0])
                         } else {
