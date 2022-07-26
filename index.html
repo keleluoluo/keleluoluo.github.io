@@ -131,7 +131,7 @@
                     remoteVideo: '',
                     codecPreferences: '',
                     recordButton: '',
-                    localUrl: 'https://api.ejoydg.com/fileMiniIo/iamges/public/2022/07/08/d3e863db3c104b8d9af599ff3edf52c9.mp4',
+                    localUrl: '',
                     remoteUrl: ''
                 }
             },
@@ -257,31 +257,30 @@
                 },
 
                 acceptButton() {
-                    this.localVideo.play();
-                    // this.acceptButton = true;
-                    // navigator.mediaDevices
-                    // 	.getUserMedia({
-                    // 		audio: true,
-                    // 		video: true,
-                    // 	})
-                    // 	.then((res) => {
-                    // 		this.localStream = res;
-                    // 		this.localUrl = this.localStream;
-                    // 		this.localVideo.srcObject = this.localStream;
-                    // 		this.createPeerConnection();
+                    this.acceptButton = true;
+                    navigator.mediaDevices
+                        .getUserMedia({
+                            audio: true,
+                            video: true,
+                        })
+                        .then((res) => {
+                            this.localStream = res;
+                            this.localUrl = this.localStream;
+                            this.localVideo.srcObject = this.localStream;
+                            this.createPeerConnection();
 
-                    // 		this.pc.createOffer().then((offer) => {
-                    // 			this.pc.setLocalDescription(offer);
-                    // 			this.send({
-                    // 				type: "offer",
-                    // 				from: this.myId,
-                    // 				to: this.toId,
-                    // 				data: offer,
-                    // 			});
-                    // 		});
-                    // 		this.localVideo.play();
-                    // 		this.remoteVideo.play();
-                    // 	});
+                            this.pc.createOffer().then((offer) => {
+                                this.pc.setLocalDescription(offer);
+                                this.send({
+                                    type: "offer",
+                                    from: this.myId,
+                                    to: this.toId,
+                                    data: offer,
+                                });
+                            });
+                            this.localVideo.play();
+                            this.remoteVideo.play();
+                        });
                 },
 
                 handleOffer(msg) {
