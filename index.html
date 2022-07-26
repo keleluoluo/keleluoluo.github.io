@@ -1,500 +1,112 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="utf-8">
-    <title></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <style type="text/css">
-        body {
-            background-color: #000;
-        }
-        
-        * {
-            padding: 0;
-            margin: 0;
-        }
-        
-        #localVideo {
-            width: 100vw;
-            height: 100vh;
-        }
-        
-        #remoteVideo {
-            position: fixed;
-            right: 0;
-            top: 0;
-            width: 65vw;
-            height: 35vh;
-            z-index: -1;
-            width: 0;
-            height: 0;
-        }
-        
-        .zindexClass {
-            z-index: 99 !important;
-        }
-        
-        .circleButton {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 20vh;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-evenly;
-            z-index: 99;
-        }
-        
-        .Connect {
-            width: 60px;
-            height: 60px;
-        }
-        
-        .hangUp {
-            width: 60px;
-            height: 60px;
-        }
-        
-        .Flip {
-            position: fixed;
-            top: 50px;
-            left: 50px;
-            z-index: 99;
-            width: 40px;
-            height: 40px;
-        }
-        /* video::-webkit-media-controls-enclosure {
-				overflow: hidden;
-				position: fixed;
-				bottom: 50px;
-				left: 0;
-				right: 0;
-			}
-
-			video::-webkit-media-controls-panel {
-				width: calc(100% + 30px);
-			} */
-    </style>
-</head>
-
-<body>
-    <div id="app">
-        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls></video>
-        <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
-        <div class="wrap">
-            <img class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="flipHandler">
-            <!-- <button type="button" id="requestVideo" style="position: fixed;left: 50%;top: 50%;"
-					@click="requestVideo()">请求视频通话</button> -->
-            <div class="circleButton">
-                <img v-if="!localStream" id="accept" @click="acceptButton" class="Connect" src="https://api.ejoydg.com/wximg/137.png" alt="">
-                <img class="hangUp" id="hangup" @click="hangupButton" src="https://api.ejoydg.com/wximg/139.png" alt="">
-            </div>
-            <!-- <div style="margin: 20px">
-					<fieldset>
-						<div>
-							录制格式：
-							<select id="codecPreferences" ref="codecPreferences" disabled></select>
-						</div>
-						<button type="button" ref="recordButton" id="startRecord"
-							@click="startRecording()">开始录制视频</button>
-						<button type="button" id="stopRecord" @click="stopRecording()">停止录制视频</button>
-						<button type="button" id="downloadRecord" @click="download()">下载</button>
-					</fieldset>
-				</div> -->
-        </div>
-    </div>
-    <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
-    <script>
-        new Vue({
-            el: '#app',
-            data() {
-                return {
-                    isaccept: false,
-                    Flip: false,
-                    config: {
-                        iceServers: [{
-                            urls: ['turn:ejoydg.com:3478'],
-                            username: 'admin',
-                            credential: 'admin#123',
-                            credentialType: 'password',
-                        }, ],
-                        iceTransportPolicy: 'relay',
-                        bundlePolicy: 'max-bundle',
-                        rtcpMuxPolicy: 'require',
-                        iceCandidatePoolSize: '0',
-                        sdpSemantics: 'unified-plan',
-                        tcpCandidatePolicy: 'disable',
-                        IceTransportsType: 'nohost',
-                    },
-                    wsAddress: 'wss://api.ejoydg.com/sig-wss/ws',
-                    loginAttemptCount: 0,
-                    myId: '',
-                    toId: '001',
-                    pc: '',
-                    localStream: '',
-                    ws: '',
-                    localVideo: '',
-                    remoteVideo: '',
-                    codecPreferences: '',
-                    recordButton: '',
-                    localUrl: '',
-                    remoteUrl: ''
-                }
+<template>
+    <view>
+      <button @click="toggleCamera">切换摄像头</button>
+        <button v-for="(item,index) in dataList" :key="index" @click="videoClick(item)">{{item.count}}</button>
+      <video id="videoDom" ref="videoDom" autoplay playsinline></video>
+    </view>
+  </template>
+<script>
+    export default {
+        data() {
+            return {
+                currentStream: undefined,
+                dataList: [],
+                toggle: true
+            };
+        },
+        methods: {
+            getdatalist() {
+                let _this = this
+                console.log('调用成功')
+                navigator.mediaDevices.enumerateDevices().then(res => {
+                    this.gotDevices(res)
+                    _this.dataList.forEach(res => {
+                        if (res.count == '1') {
+                            _this.videoClick(res)
+                        }
+                    })
+                });
             },
-            created() {
-                this.myId = window.location.href.split('id=')[1];
-                console.log(this.myId)
-                this.first();
-                console.log(this.isaccept)
-            },
-            mounted() {
-                this.localVideo = this.$refs.localVideo;
-                this.remoteVideo = this.$refs.remoteVideo;
-                // this.codecPreferences = this.$refs.codecPreferences;
-                // this.recordButton = this.$refs.recordButton;
-            },
-            methods: {
-                flipHandler() {
-                    this.Flip = !this.Flip;
-                    this.localVideo.pause();
-                    if (this.Flip) {
-                        navigator.mediaDevices.getUserMedia({
-                            video: {
-                                facingMode: 'environment'
+            toggleCamera() {
+                this.getdatalist()
+                let _this = this
+                this.toggle = !this.toggle
+                if (this.dataList) {
+                    if (this.toggle) {
+                        console.log('前置')
+                            // 前置
+                        _this.dataList.forEach(res => {
+                            if (res.count == '1') {
+                                _this.videoClick(res)
                             }
                         })
-                        this.localVideo.play();
                     } else {
-                        navigator.mediaDevices.getUserMedia({
-                            video: {
-                                facingMode: 'user'
-                            }
-                        })
-                        this.localVideo.play();
+                        console.log('后置')
+                        console.log(_this.dataList)
+                        _this.videoClick(_this.dataList[_this.dataList.length - 1])
+                            // 后置
                     }
-                },
-                first() {
-                    this.loginAttemptCount = 0;
-                    this.ws = new WebSocket(this.wsAddress);
-                    this.ws.onopen = () => {
-                        console.log("WebSocket is open now.");
-                        this.connect();
-                    };
+                }
 
-                    this.ws.onmessage = (message) => {
-                        let msg = JSON.parse(message.data);
-                        console.log("ws 收到消息：" + msg.type);
-                        switch (msg.type) {
-                            case "offline":
-                                {
-                                    if (this.loginAttemptCount < 10) {
-                                        setTimeout(() => {
-                                            this.loginAttemptCount++;
-                                            this.watch();
-                                        }, 1000);
-                                    }
-                                    break;
-                                }
-                            case "watch":
-                                {
-                                    this.handleWatch(msg);
-                                    break;
-                                }
-                            case "offer":
-                                {
-                                    this.handleOffer(msg);
-                                    break;
-                                }
-                            case "answer":
-                                {
-                                    this.handleAnswer(msg);
-                                    break;
-                                }
-                            case "candidate":
-                                {
-                                    this.handleCandidate(msg);
-                                    break;
-                                }
-                            case "hangup":
-                                {
-                                    handleHangup(msg);
-                                    break;
-                                }
-                        }
-                    };
-                },
-                handleHangup() {
-                    if (!this.pc) {
-                        console.error('no peer connection');
-                        return;
-                    }
-                    this.pc.close();
-                    this.pc = null;
-                    if (this.localStream) {
-                        this.localStream.getTracks().forEach(track => track.stop());
-                        this.localStream = null;
-                    }
-                    console.log('hangup');
-                },
-                requestVideo() {
-                    this.watch();
-                    navigator.mediaDevices
-                        .getUserMedia({
-                            audio: true,
-                            video: true,
-                        })
-                        .then((res) => {
-                            this.localStream = res;
-                            this.localUrl = this.localStream;
-                            this.localVideo.srcObject = this.localStream;
-
-                            this.createPeerConnection();
-                        });
-                },
-                connect() {
-                    this.send({
-                        type: "connect",
-                        from: this.myId,
-                    });
-                },
-
-                handleWatch(msg) {
-                    this.toId = msg.from;
-                },
-
-                acceptButton() {
-                    this.acceptButton = true;
-                    navigator.mediaDevices
-                        .getUserMedia({
-                            audio: true,
-                            video: true,
-                        })
-                        .then((res) => {
-                            this.localStream = res;
-                            this.localUrl = this.localStream;
-                            this.localVideo.srcObject = this.localStream;
-                            this.createPeerConnection();
-
-                            this.pc.createOffer().then((offer) => {
-                                this.pc.setLocalDescription(offer);
-                                this.send({
-                                    type: "offer",
-                                    from: this.myId,
-                                    to: this.toId,
-                                    data: offer,
-                                });
-                            });
-                            this.localVideo.play();
-                            this.remoteVideo.play();
-                        });
-                },
-
-                handleOffer(msg) {
-                    this.pc.setRemoteDescription(msg.data);
-
-                    this.pc.createAnswer().then((answer) => {
-                        this.pc.setLocalDescription(answer);
-                        this.send({
-                            type: "answer",
-                            from: this.myId,
-                            to: this.toId,
-                            data: answer,
-                        });
-                    });
-                },
-
-                watch() {
-                    this.send({
-                        type: "watch",
-                        from: this.myId,
-                        to: this.toId,
-                    });
-                },
-
-                handleAnswer(msg) {
-                    if (!this.pc) {
-                        console.error("no peer connection");
-                        return;
-                    }
-                    this.pc.setRemoteDescription(msg.data);
-                },
-
-                handleCandidate(msg) {
-                    if (!this.pc) {
-                        console.error("no peer connection");
-                        return;
-                    }
-                    this.pc
-                        .addIceCandidate(new RTCIceCandidate(msg.data))
-                        .then(() => {
-                            console.log("candidate添加成功");
-                        })
-                        .catch(this.handleError());
-                },
-
-                handleError(error) {
-                    console.log(error);
-                },
-
-                createPeerConnection() {
-                    this.pc = new RTCPeerConnection(this.config);
-                    console.log(this.pc)
-                    this.pc.onicecandidate = (e) => {
-                        if (e.candidate) {
-                            this.send({
-                                type: "candidate",
-                                from: this.myId,
-                                to: this.toId,
-                                data: e.candidate,
-                            });
-                        }
-                    };
-
-                    this.pc.ontrack = (e) => (
-                        this.remoteVideo.srcObject = e.streams[0]
-                    );
-                    this.localStream
-                        .getTracks()
-                        .forEach((track) => this.pc.addTrack(track, this.localStream));
-                },
-
-                hangupButton() {
-                    if (this.pc) {
-                        this.pc.close();
-                        this.pc = null;
-                    }
-                    if (this.localStream) {
-                        this.localStream.getTracks().forEach((track) => track.stop());
-                        this.localStream = null;
-                    }
-                },
-
-                send(msg) {
-                    console.log(msg);
-                    this.ws.send(JSON.stringify(msg));
-                },
-
-                getSupportedMimeTypes() {
-                    const possibleTypes = [
-                        "video/webm;codecs=vp9,opus",
-                        "video/webm;codecs=vp8,opus",
-                        "video/webm;codecs=h264,opus",
-                        "video/mp4;codecs=h264,aac",
-                    ];
-                    return possibleTypes.filter((mimeType) => {
-                        return MediaRecorder.isTypeSupported(mimeType);
-                    });
-                },
-
-                startRecording() {
-                    var recordedBlobs = [];
-                    this.getSupportedMimeTypes().forEach((mimeType) => {
-                        const option = document.createElement("option");
-                        option.value = mimeType;
-                        option.innerText = option.value;
-                        this.codecPreferences.appendChild(option);
-                    });
-                    const mimeType =
-                        this.codecPreferences.options[this.codecPreferences.selectedIndex].value;
-                    const options = {
-                        mimeType
-                    };
-
-                    try {
-                        mediaRecorder = new MediaRecorder(this.remoteVideo.srcObject, options);
-                    } catch (e) {
-                        console.error("Exception while creating MediaRecorder:", e);
-                        return;
-                    }
-
-                    console.log(
-                        "Created MediaRecorder",
-                        mediaRecorder,
-                        "with options",
-                        options
-                    );
-                    this.recordButton.textContent = "Stop Recording";
-                    mediaRecorder.onstop = (event) => {
-                        console.log("Recorder stopped: ", event);
-                        console.log("Recorded Blobs: ", recordedBlobs);
-                    };
-                    mediaRecorder.ondataavailable = this.handleDataAvailable;
-                    mediaRecorder.start();
-                    console.log("MediaRecorder started", mediaRecorder);
-                },
-
-                handleDataAvailable(event) {
-                    console.log("handleDataAvailable", event);
-                    if (event.data && event.data.size > 0) {
-                        recordedBlobs.push(event.data);
-                    }
-                },
-
-                stopRecording() {
-                    mediaRecorder.stop();
-                },
-
-                download() {
-                    const blob = new Blob(recordedBlobs, {
-                        type: "video/webm"
-                    });
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.style.display = "none";
-                    a.href = url;
-                    a.download = "test.webm";
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(() => {
-                        document.body.removeChild(a);
-                        window.URL.revokeObjectURL(url);
-                    }, 100);
-                },
-                startRecording() {
-                    recordedBlobs = [];
-                    this.getSupportedMimeTypes().forEach((mimeType) => {
-                        const option = document.createElement("option");
-                        option.value = mimeType;
-                        option.innerText = option.value;
-                        this.codecPreferences.appendChild(option);
-                    });
-                    const mimeType =
-                        this.codecPreferences.options[this.codecPreferences.selectedIndex].value;
-                    const options = {
-                        mimeType
-                    };
-
-                    try {
-                        mediaRecorder = new MediaRecorder(this.remoteVideo.srcObject, options);
-                    } catch (e) {
-                        console.error("Exception while creating MediaRecorder:", e);
-                        alert("Exception while creating MediaRecorder: " + e);
-                        return;
-                    }
-
-                    console.log(
-                        "Created MediaRecorder",
-                        mediaRecorder,
-                        "with options",
-                        options
-                    );
-                    this.recordButton.textContent = "Stop Recording";
-                    mediaRecorder.onstop = (event) => {
-                        console.log("Recorder stopped: ", event);
-                        console.log("Recorded Blobs: ", recordedBlobs);
-                    };
-                    mediaRecorder.ondataavailable = this.handleDataAvailable;
-                    mediaRecorder.start();
-                    console.log("MediaRecorder started", mediaRecorder);
-                },
-                stopRecording() {
-                    mediaRecorder.stop();
-                },
             },
-        })
-    </script>
-</body>
+            stopMediaTracks(stream) {
+                stream.getTracks().forEach(track => {
+                    track.stop();
+                });
+            },
+            videoClick(item) {
+                let _this = this
 
-</html>
+                if (item) {
+                    if (typeof _this.currentStream !== "undefined") {
+                        _this.stopMediaTracks(_this.currentStream);
+                    }
+                    const videoConstraints = {};
+                    console.log('设备')
+                    console.log(JSON.stringify(item))
+                    console.log(item.deviceId)
+                    videoConstraints.deviceId = {
+                        exact: item.deviceId
+                    };
+                    const constraints = {
+                        video: videoConstraints,
+                        audio: false
+                    };
+                    console.log(constraints)
+                    navigator.mediaDevices
+                        .getUserMedia(constraints)
+                        .then(stream => {
+                            _this.currentStream = stream;
+                            window.src = stream
+                            document.getElementsByTagName('video')[0].srcObject = window.src
+                            return navigator.mediaDevices.enumerateDevices();
+                        })
+                        .then(res => {
+                            _this.gotDevices(res)
+                        })
+                        .catch(error => {
+                            console.log(error + '出错');
+                        });
+                }
+
+            },
+            gotDevices(mediaDevices) {
+                let _this = this
+                const controls = document.getElementById("controls");
+                const video = document.getElementById("videoDom")
+                this.dataList = []
+                let count = 1;
+                mediaDevices.forEach(mediaDevice => {
+                    if (mediaDevice.kind === "videoinput") {
+                        mediaDevice.count = `${count++}`
+                        _this.dataList.push(mediaDevice)
+                    }
+                });
+            },
+        }
+    };
+</script>
+
+<style lang="scss">
+
+</style>
