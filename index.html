@@ -7,191 +7,453 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <style type="text/css">
-        span {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            background: red;
-            font-weight: 700;
-            color: #fff;
-            border-radius: 30px;
-            text-align: center;
-            line-height: 30px;
-            margin-right: 5px;
+        body {
+            background-color: #000;
         }
         
-        .blue {
-            background: blue !important;
+        * {
+            padding: 0;
+            margin: 0;
         }
         
-        #app {
+        #localVideo {
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #remoteVideo {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 65vw;
+            height: 35vh;
+            z-index: -1;
+        }
+        
+        .zindexClass {
+            z-index: 99 !important;
+        }
+        
+        .circleButton {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 20vh;
             display: flex;
-            flex-direction: column;
-            width: 300px;
-            margin: 0 auto;
+            flex-direction: row;
+            justify-content: space-evenly;
+            z-index: 99;
         }
         
-        .button {
-            height: 35px;
-            line-height: 35px;
-            color: #fff;
-            font-weight: 700;
-            background-color: black;
-            border-radius: 35px;
-            text-align: center;
-            width: 100px;
-            display: inline-block;
-            margin: 50px auto;
+        .Connect {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .hangUp {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .Flip {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 99;
+            width: 40px;
+            height: 40px;
         }
     </style>
 </head>
 
 <body>
     <div id="app">
-        <div @click="create" class="button">生成</div>
-        <div>
-            <span v-for="item in data">{{item}}</span>
-        </div>
-        <div style="margin-top:50px;" @click="happy" class="button">快乐八</div>
-        <div>
-            <span v-for="item in list">{{item}}</span>
-        </div>
-        <div style="margin-top:50px;" @click="big" class="button">大乐透</div>
-        <div>
-            <span v-for="item in bigarr">{{item}}</span>
-            <span class="blue" v-for="item in bigBlue">{{item}}</span>
-        </div>
-        <div style="margin-top:50px;" @click="double" class="button">双色球</div>
-        <div>
-            <span v-for="item in doublearr">{{item}}</span>
-            <span class="blue" v-if="blue">{{blue}}</span>
+        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls></video>
+        <video :class="isaccept?'zindexClass':''" id="remoteVideo" :src="remoteVideo && remoteVideo.srcObject?remoteVideo.srcObject:''" ref="remoteVideo" autoplay controls></video>
+        <div class="wrap">
+            <img class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="flipHandler">
+            <!-- <button type="button" id="requestVideo" style="position: fixed;left: 50%;top: 50%;"
+					@click="requestVideo()">请求视频通话</button> -->
+            <div class="circleButton">
+                <img v-if="!localStream" id="accept" @click="acceptButton" class="Connect" src="https://api.ejoydg.com/wximg/137.png" alt="">
+                <img class="hangUp" id="hangup" @click="hangupButton" src="https://api.ejoydg.com/wximg/139.png" alt="">
+            </div>
+            <!-- <div style="margin: 20px">
+					<fieldset>
+						<div>
+							录制格式：
+							<select id="codecPreferences" ref="codecPreferences" disabled></select>
+						</div>
+						<button type="button" ref="recordButton" id="startRecord"
+							@click="startRecording()">开始录制视频</button>
+						<button type="button" id="stopRecord" @click="stopRecording()">停止录制视频</button>
+						<button type="button" id="downloadRecord" @click="download()">下载</button>
+					</fieldset>
+				</div> -->
         </div>
     </div>
-
     <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
-    
     <script>
         new Vue({
             el: '#app',
             data() {
                 return {
-                    data: [],
-                    list: [],
-                    bigarr: [],
-                    bigBlue: [],
-                    doublearr: [],
-                    blue: ''
+                    isaccept: false,
+                    Flip: false,
+                    config: {
+                        iceServers: [{
+                            urls: 'turn:turn.wildfirechat.cn:3478',
+                            credential: 'wfchat',
+                            username: 'wfchat'
+                        }]
+                    },
+                    wsAddress: 'wss://api.ejoydg.com/sig-wss/ws',
+                    loginAttemptCount: 0,
+                    myId: '',
+                    toId: '001',
+                    pc: '',
+                    localStream: '',
+                    ws: '',
+                    localVideo: '',
+                    remoteVideo: '',
+                    codecPreferences: '',
+                    recordButton: '',
+                    localUrl: '',
+                    remoteUrl: ''
                 }
             },
             created() {
-
+                this.myId = window.location.href.split('id=')[1];
+                console.log(this.myId)
+                this.first();
+                console.log(this.isaccept)
+            },
+            mounted() {
+                this.localVideo = this.$refs.localVideo;
+                this.remoteVideo = this.$refs.remoteVideo;
+                // this.codecPreferences = this.$refs.codecPreferences;
+                // this.recordButton = this.$refs.recordButton;
             },
             methods: {
-                big() {
-                    this.bigarr = [];
-                    var num = 5;
-                    for (let i = 0; i < num; i++) {
-                        var n = Math.floor(Math.random() * (35 - 1)) + 1;
-                        if (this.bigarr.indexOf(n) == -1) {
-                            this.bigarr.push(n)
-                        } else {
-                            num++;
-                        }
-                    }
-                    for (let i = 0; i < this.bigarr.length - 1; i++) {
-                        for (let j = 0; j < this.bigarr.length - 1 - i; j++) {
-                            if (this.bigarr[j] > this.bigarr[j + 1]) {
-                                var temp = this.bigarr[j];
-                                this.bigarr[j] = this.bigarr[j + 1];
-                                this.bigarr[j + 1] = temp;
+                flipHandler() {
+                    this.Flip = !this.Flip;
+                    this.localVideo.pause();
+                    if (this.Flip) {
+                        navigator.mediaDevices.getUserMedia({
+                            video: {
+                                facingMode: 'environment'
                             }
-                        }
-                    }
-                    this.bigBlue = []
-                    var num1 = 2;
-                    for (let i = 0; i < num1; i++) {
-                        var n = Math.floor(Math.random() * (12 - 1)) + 1;
-                        if (this.bigBlue.indexOf(n) == -1) {
-                            this.bigBlue.push(n)
-                        } else {
-                            num1++;
-                        }
-                    }
-                    for (let i = 0; i < this.bigBlue.length - 1; i++) {
-                        for (let j = 0; j < this.bigBlue.length - 1 - i; j++) {
-                            if (this.bigBlue[j] > this.bigBlue[j + 1]) {
-                                var temp = this.bigBlue[j];
-                                this.bigBlue[j] = this.bigBlue[j + 1];
-                                this.bigBlue[j + 1] = temp;
+                        })
+                        this.localVideo.play();
+                    } else {
+                        navigator.mediaDevices.getUserMedia({
+                            video: {
+                                facingMode: 'user'
                             }
-                        }
+                        })
+                        this.localVideo.play();
                     }
                 },
-                double() {
-                    this.doublearr = []
-                    var num = 6;
-                    for (let i = 0; i < num; i++) {
-                        var n = Math.floor(Math.random() * (33 - 1)) + 1;
-                        if (this.doublearr.indexOf(n) == -1) {
-                            this.doublearr.push(n)
-                        } else {
-                            num++;
+                first() {
+                    this.loginAttemptCount = 0;
+                    this.ws = new WebSocket(this.wsAddress);
+                    this.ws.onopen = () => {
+                        console.log("WebSocket is open now.");
+                        this.connect();
+                    };
+
+                    this.ws.onmessage = (message) => {
+                        let msg = JSON.parse(message.data);
+                        console.log("ws 收到消息：" + msg.type);
+                        switch (msg.type) {
+                            case "offline":
+                                {
+                                    if (this.loginAttemptCount < 10) {
+                                        setTimeout(() => {
+                                            this.loginAttemptCount++;
+                                            this.watch();
+                                        }, 1000);
+                                    }
+                                    break;
+                                }
+                            case "watch":
+                                {
+                                    this.handleWatch(msg);
+                                    break;
+                                }
+                            case "offer":
+                                {
+                                    this.handleOffer(msg);
+                                    break;
+                                }
+                            case "answer":
+                                {
+                                    this.handleAnswer(msg);
+                                    break;
+                                }
+                            case "candidate":
+                                {
+                                    this.handleCandidate(msg);
+                                    break;
+                                }
                         }
-                    }
-                    for (let i = 0; i < this.doublearr.length - 1; i++) {
-                        for (let j = 0; j < this.doublearr.length - 1 - i; j++) {
-                            if (this.doublearr[j] > this.doublearr[j + 1]) {
-                                var temp = this.doublearr[j];
-                                this.doublearr[j] = this.doublearr[j + 1];
-                                this.doublearr[j + 1] = temp;
-                            }
-                        }
-                    }
-                    this.blue = Math.floor(Math.random() * (16 - 1)) + 1;
+                    };
                 },
-                create() {
-                    this.data = []
-                    var num = 20;
-                    for (let i = 0; i < num; i++) {
-                        var n = Math.floor(Math.random() * (80 - 1)) + 1;
-                        if (this.data.indexOf(n) == -1) {
-                            this.data.push(n)
-                        } else {
-                            num++
-                        }
+                requestVideo() {
+                    this.watch();
+                    navigator.mediaDevices
+                        .getUserMedia({
+                            audio: true,
+                            video: true,
+                        })
+                        .then((res) => {
+                            this.localStream = res;
+                            this.localUrl = this.localStream;
+                            this.localVideo.srcObject = this.localStream;
+
+                            this.createPeerConnection();
+                        });
+                },
+                connect() {
+                    this.send({
+                        type: "connect",
+                        from: this.myId,
+                    });
+                },
+
+                handleWatch(msg) {
+                    this.toId = msg.from;
+                },
+
+                acceptButton() {
+                    this.acceptButton = true;
+                    navigator.mediaDevices
+                        .getUserMedia({
+                            audio: true,
+                            video: true,
+                        })
+                        .then((res) => {
+                            this.localStream = res;
+                            this.localUrl = this.localStream;
+                            this.localVideo.srcObject = this.localStream;
+                            this.createPeerConnection();
+
+                            this.pc.createOffer().then((offer) => {
+                                this.pc.setLocalDescription(offer);
+                                this.send({
+                                    type: "offer",
+                                    from: this.myId,
+                                    to: this.toId,
+                                    data: offer,
+                                });
+                            });
+                            this.localVideo.play();
+                            this.remoteVideo.play();
+                        });
+                },
+
+                handleOffer(msg) {
+                    this.pc.setRemoteDescription(msg.data);
+
+                    this.pc.createAnswer().then((answer) => {
+                        this.pc.setLocalDescription(answer);
+                        this.send({
+                            type: "answer",
+                            from: this.myId,
+                            to: this.toId,
+                            data: answer,
+                        });
+                    });
+                },
+
+                watch() {
+                    this.send({
+                        type: "watch",
+                        from: this.myId,
+                        to: this.toId,
+                    });
+                },
+
+                handleAnswer(msg) {
+                    if (!this.pc) {
+                        console.error("no peer connection");
+                        return;
                     }
-                    for (let i = 0; i < this.data.length - 1; i++) {
-                        for (let j = 0; j < this.data.length - 1 - i; j++) {
-                            if (this.data[j] > this.data[j + 1]) {
-                                var temp = this.data[j];
-                                this.data[j] = this.data[j + 1];
-                                this.data[j + 1] = temp;
-                            }
+                    this.pc.setRemoteDescription(msg.data);
+                },
+
+                handleCandidate(msg) {
+                    if (!this.pc) {
+                        console.error("no peer connection");
+                        return;
+                    }
+                    this.pc
+                        .addIceCandidate(new RTCIceCandidate(msg.data))
+                        .then(() => {
+                            console.log("candidate添加成功");
+                        })
+                        .catch(this.handleError());
+                },
+
+                handleError(error) {
+                    console.log(error);
+                },
+
+                createPeerConnection() {
+                    this.pc = new RTCPeerConnection(this.config);
+                    console.log(this.pc)
+                    this.pc.onicecandidate = (e) => {
+                        if (e.candidate) {
+                            this.send({
+                                type: "candidate",
+                                from: this.myId,
+                                to: this.toId,
+                                data: e.candidate,
+                            });
                         }
+                    };
+
+                    this.pc.ontrack = (e) => (
+                        this.remoteVideo.srcObject = e.streams[0]
+                    );
+                    this.localStream
+                        .getTracks()
+                        .forEach((track) => this.pc.addTrack(track, this.localStream));
+                },
+
+                hangupButton() {
+                    if (this.pc) {
+                        this.pc.close();
+                        this.pc = null;
+                    }
+                    if (this.localStream) {
+                        this.localStream.getTracks().forEach((track) => track.stop());
+                        this.localStream = null;
                     }
                 },
-                happy() {
-                    this.list = []
-                    var num = 8;
-                    for (let i = 0; i < num; i++) {
-                        var n = Math.floor(Math.random() * (80 - 1)) + 1;
-                        if (this.list.indexOf(n) == -1) {
-                            this.list.push(n)
-                        } else {
-                            num++
-                        }
+
+                send(msg) {
+                    console.log(msg);
+                    this.ws.send(JSON.stringify(msg));
+                },
+
+                getSupportedMimeTypes() {
+                    const possibleTypes = [
+                        "video/webm;codecs=vp9,opus",
+                        "video/webm;codecs=vp8,opus",
+                        "video/webm;codecs=h264,opus",
+                        "video/mp4;codecs=h264,aac",
+                    ];
+                    return possibleTypes.filter((mimeType) => {
+                        return MediaRecorder.isTypeSupported(mimeType);
+                    });
+                },
+
+                startRecording() {
+                    var recordedBlobs = [];
+                    this.getSupportedMimeTypes().forEach((mimeType) => {
+                        const option = document.createElement("option");
+                        option.value = mimeType;
+                        option.innerText = option.value;
+                        this.codecPreferences.appendChild(option);
+                    });
+                    const mimeType =
+                        this.codecPreferences.options[this.codecPreferences.selectedIndex].value;
+                    const options = {
+                        mimeType
+                    };
+
+                    try {
+                        mediaRecorder = new MediaRecorder(this.remoteVideo.srcObject, options);
+                    } catch (e) {
+                        console.error("Exception while creating MediaRecorder:", e);
+                        return;
                     }
-                    for (let i = 0; i < this.list.length - 1; i++) {
-                        for (let j = 0; j < this.list.length - 1 - i; j++) {
-                            if (this.list[j] > this.list[j + 1]) {
-                                var temp = this.list[j];
-                                this.list[j] = this.list[j + 1];
-                                this.list[j + 1] = temp;
-                            }
-                        }
+
+                    console.log(
+                        "Created MediaRecorder",
+                        mediaRecorder,
+                        "with options",
+                        options
+                    );
+                    this.recordButton.textContent = "Stop Recording";
+                    mediaRecorder.onstop = (event) => {
+                        console.log("Recorder stopped: ", event);
+                        console.log("Recorded Blobs: ", recordedBlobs);
+                    };
+                    mediaRecorder.ondataavailable = this.handleDataAvailable;
+                    mediaRecorder.start();
+                    console.log("MediaRecorder started", mediaRecorder);
+                },
+
+                handleDataAvailable(event) {
+                    console.log("handleDataAvailable", event);
+                    if (event.data && event.data.size > 0) {
+                        recordedBlobs.push(event.data);
                     }
-                }
-            }
+                },
+
+                stopRecording() {
+                    mediaRecorder.stop();
+                },
+
+                download() {
+                    const blob = new Blob(recordedBlobs, {
+                        type: "video/webm"
+                    });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.style.display = "none";
+                    a.href = url;
+                    a.download = "test.webm";
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    }, 100);
+                },
+                startRecording() {
+                    recordedBlobs = [];
+                    this.getSupportedMimeTypes().forEach((mimeType) => {
+                        const option = document.createElement("option");
+                        option.value = mimeType;
+                        option.innerText = option.value;
+                        this.codecPreferences.appendChild(option);
+                    });
+                    const mimeType =
+                        this.codecPreferences.options[this.codecPreferences.selectedIndex].value;
+                    const options = {
+                        mimeType
+                    };
+
+                    try {
+                        mediaRecorder = new MediaRecorder(this.remoteVideo.srcObject, options);
+                    } catch (e) {
+                        console.error("Exception while creating MediaRecorder:", e);
+                        alert("Exception while creating MediaRecorder: " + e);
+                        return;
+                    }
+
+                    console.log(
+                        "Created MediaRecorder",
+                        mediaRecorder,
+                        "with options",
+                        options
+                    );
+                    this.recordButton.textContent = "Stop Recording";
+                    mediaRecorder.onstop = (event) => {
+                        console.log("Recorder stopped: ", event);
+                        console.log("Recorded Blobs: ", recordedBlobs);
+                    };
+                    mediaRecorder.ondataavailable = this.handleDataAvailable;
+                    mediaRecorder.start();
+                    console.log("MediaRecorder started", mediaRecorder);
+                },
+                stopRecording() {
+                    mediaRecorder.stop();
+                },
+            },
         })
     </script>
 </body>
