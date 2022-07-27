@@ -181,34 +181,29 @@
             },
             methods: {
                 getdatalist() {
-                    let _this = this
                     console.log('调用成功')
                     navigator.mediaDevices.enumerateDevices().then(res => {
                         this.gotDevices(res)
-                        _this.dataList.forEach(res => {
+                        this.dataList.forEach(res => {
                             console.log(res)
                             if (res.count == '1') {
-                                _this.videoClick(res)
+                                this.videoClick(res)
                             }
                         })
                     });
                 },
                 toggleCamera() {
                     this.getdatalist()
-                    let _this = this
-                        // this.toggle = !this.toggle
                     this.Flip = !this.Flip;
                     if (this.dataList) {
                         if (!this.Flip) {
                             console.log('前置')
-                            _this.videoClick(_this.dataList[0])
+                            this.videoClick(this.dataList[0])
                         } else {
                             console.log('后置')
-                            console.log(_this.dataList)
-                            _this.videoClick(_this.dataList[_this.dataList.length - 1])
+                            this.videoClick(this.dataList[this.dataList.length - 1])
                         }
                     }
-
                 },
                 stopMediaTracks(stream) {
                     stream.getTracks().forEach(track => {
@@ -216,16 +211,11 @@
                     });
                 },
                 videoClick(item) {
-                    let _this = this
-
                     if (item) {
-                        if (_this.localStream) {
-                            _this.stopMediaTracks(_this.localStream);
+                        if (this.localStream) {
+                            this.stopMediaTracks(this.localStream);
                         }
                         const videoConstraints = {};
-                        console.log('设备')
-                        console.log(JSON.stringify(item))
-                        console.log(item.deviceId)
                         videoConstraints.deviceId = {
                             exact: item.deviceId
                         };
@@ -237,7 +227,7 @@
                         navigator.mediaDevices
                             .getUserMedia(constraints)
                             .then(stream => {
-                                _this.localStream = stream;
+                                this.localStream = stream;
                                 this.localVideo.srcObject = stream
                                 this.localStream
                                     .getTracks()
@@ -245,7 +235,7 @@
                                 return navigator.mediaDevices.enumerateDevices();
                             })
                             .then(res => {
-                                _this.gotDevices(res)
+                                this.gotDevices(res)
                             })
                             .catch(error => {
                                 console.log(error + '出错');
@@ -254,15 +244,12 @@
 
                 },
                 gotDevices(mediaDevices) {
-                    let _this = this
-                        // const controls = document.getElementById("controls");
-                        // const video = document.getElementById("videoDom")
                     this.dataList = []
                     let count = 1;
                     mediaDevices.forEach(mediaDevice => {
                         if (mediaDevice.kind === "videoinput") {
                             mediaDevice.count = `${count++}`
-                            _this.dataList.push(mediaDevice)
+                            this.dataList.push(mediaDevice)
                         }
                     });
                 },
