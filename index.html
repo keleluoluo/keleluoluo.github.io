@@ -212,9 +212,9 @@
                 },
                 videoClick(item) {
                     if (item) {
-                        // if (this.localStream) {
-                        //     this.stopMediaTracks(this.localStream);
-                        // }
+                        if (this.localStream) {
+                            this.stopMediaTracks(this.localStream);
+                        }
                         const videoConstraints = {};
                         videoConstraints.deviceId = {
                             exact: item.deviceId
