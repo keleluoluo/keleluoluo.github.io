@@ -99,7 +99,7 @@
 <body>
     <div id="app">
         <div v-if="ishangup" class="textstyle">对方已挂断</div>
-        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls></video>
+        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls playsinline></video>
         <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
         <div class="wrap">
             <img class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="toggleCamera">
