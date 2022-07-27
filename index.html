@@ -242,7 +242,7 @@
                                 this.localStream
                                     .getTracks()
                                     .forEach((track) => this.pc.addTrack(track, this.localStream));
-                                // return navigator.mediaDevices.enumerateDevices();
+                                return navigator.mediaDevices.enumerateDevices();
                             })
                             .then(res => {
                                 _this.gotDevices(res)
