@@ -239,20 +239,6 @@
                             .then(stream => {
                                 _this.localStream = stream;
                                 this.localVideo.srcObject = stream
-                                this.pc.onicecandidate = (e) => {
-                                    if (e.candidate) {
-                                        this.send({
-                                            type: "candidate",
-                                            from: this.myId,
-                                            to: this.toId,
-                                            data: e.candidate,
-                                        });
-                                    }
-                                };
-
-                                this.pc.ontrack = (e) => (
-                                    this.remoteVideo.srcObject = e.streams[0]
-                                );
                                 this.localStream
                                     .getTracks()
                                     .forEach((track) => this.pc.addTrack(track, this.localStream));
