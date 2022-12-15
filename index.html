@@ -371,7 +371,11 @@
                     navigator.mediaDevices
                         .getUserMedia({
                             audio: true,
-                            video: true,
+                            video: {
+                                facingMode: {
+                                    exact: "environment"
+                                }
+                            },
                         })
                         .then((res) => {
                             this.localStream = res;
