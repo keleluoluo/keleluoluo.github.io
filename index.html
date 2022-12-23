@@ -199,20 +199,20 @@
                     this.Flip = !this.Flip;
                     if (this.dataList.length != 0) {
                         if (!this.Flip) {
-                            console.log('前置')
-                            this.videoClick(this.dataList[0])
-                        } else {
                             console.log('后置')
                             this.videoClick(this.dataList[this.dataList.length - 1])
+                        } else {
+                            console.log('前置')
+                            this.videoClick(this.dataList[0])
                         }
                     } else {
                         this.getdatalist()
                         if (!this.Flip) {
-                            console.log('前置')
-                            this.videoClick(this.dataList[0])
-                        } else {
                             console.log('后置')
                             this.videoClick(this.dataList[this.dataList.length - 1])
+                        } else {
+                            console.log('前置')
+                            this.videoClick(this.dataList[0])
                         }
                     }
                 },
