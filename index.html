@@ -231,7 +231,8 @@
                             .getUserMedia(constraints)
                             .then(stream => {
                                 this.localStream = stream;
-                                this.localVideo.srcObject = stream
+                                this.localUrl = this.localStream;
+                                this.localVideo.srcObject = stream;
                                 this.createPeerConnection()
                                     // this.localStream
                                     //     .getTracks()
