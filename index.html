@@ -98,6 +98,7 @@
 
 <body>
     <div id="app">
+        <div style="color:#fff" v-for="(item,index) in devicesIds">{{item}}</div>
         <div v-if="ishangup" class="textstyle">对方已挂断</div>
         <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls playsinline></video>
         <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
@@ -167,6 +168,7 @@
                     remoteUrl: '',
                     ishangup: false,
                     dataList: [],
+                    devicesIds: []
                 }
             },
             created() {
@@ -178,8 +180,16 @@
             mounted() {
                 this.localVideo = this.$refs.localVideo;
                 this.remoteVideo = this.$refs.remoteVideo;
-                // this.codecPreferences = this.$refs.codecPreferences;
-                // this.recordButton = this.$refs.recordButton;
+                this.devicesIds = [];
+
+                navigator.mediaDevices.enumerateDevices().then(function(devices) {
+                    devices.forEach(function(device) {
+                        this.devicesIds.push(device.deviceId);
+                    });
+                });
+                console.log(this.devicesIds)
+                    // this.codecPreferences = this.$refs.codecPreferences;
+                    // this.recordButton = this.$refs.recordButton;
             },
             methods: {
                 getdatalist() {
