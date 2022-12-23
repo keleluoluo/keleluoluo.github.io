@@ -180,13 +180,17 @@
             mounted() {
                 this.localVideo = this.$refs.localVideo;
                 this.remoteVideo = this.$refs.remoteVideo;
-                this.devicesIds = [];
+                devicesIds = [];
 
-                navigator.mediaDevices.enumerateDevices().then(function(devices) {
-                    devices.forEach(function(device) {
-                        this.devicesIds.push(device.deviceId);
+                navigator.mediaDevices.enumerateDevices().then((devices) => {
+                    console.log(devices)
+                    devices.forEach((device) => {
+                        console.log(device)
+                        devicesIds.push(device.deviceId);
                     });
                 });
+                this.devicesIds = devicesIds;
+                console.log(devicesIds)
                 console.log(this.devicesIds)
                     // this.codecPreferences = this.$refs.codecPreferences;
                     // this.recordButton = this.$refs.recordButton;
