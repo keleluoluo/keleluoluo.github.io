@@ -207,6 +207,13 @@
                         }
                     } else {
                         this.getdatalist()
+                        if (!this.Flip) {
+                            console.log('前置')
+                            this.videoClick(this.dataList[0])
+                        } else {
+                            console.log('后置')
+                            this.videoClick(this.dataList[this.dataList.length - 1])
+                        }
                     }
                 },
                 stopMediaTracks(stream) {
