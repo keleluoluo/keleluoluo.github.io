@@ -236,10 +236,21 @@
                                     // this.localStream
                                     //     .getTracks()
                                     //     .forEach((track) => this.pc.addTrack(track, this.localStream));
-                                return navigator.mediaDevices.enumerateDevices();
+                                    // return navigator.mediaDevices.enumerateDevices();
+                                this.pc.createOffer().then((offer) => {
+                                    this.pc.setLocalDescription(offer);
+                                    this.send({
+                                        type: "offer",
+                                        from: this.myId,
+                                        to: this.toId,
+                                        data: offer,
+                                    });
+                                });
+                                this.localVideo.play();
+                                this.remoteVideo.play();
                             })
                             .then(res => {
-                                this.gotDevices(res)
+                                // this.gotDevices(res)
                             })
                             .catch(error => {
                                 console.log(error + '出错');
