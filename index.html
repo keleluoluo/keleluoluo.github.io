@@ -87,7 +87,7 @@
 
 <body>
     <div id="app">
-        <!-- <div v-if="ishangup" class="textstyle">对方已挂断</div> -->
+        <div v-if="ishangup" class="textstyle">对方已挂断</div>
         <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls playsinline></video>
         <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
         <div class="wrap">
@@ -140,7 +140,7 @@
                     ishangup: false,
                     dataList: [],
                     token: 'Bearer 261|RQJpQWkJqm4X219gsTX7psn3ZalXuiWh63awVOvz',
-                    seconds: 0,
+                    seconds: 10,
                     timer: null
                 }
             },
@@ -481,7 +481,8 @@
                         to: this.toId
                     });
                     axios.post('https://hle.tianview.com/api/accept/call/log', {
-                        call_duration: this.seconds
+                        call_duration: this.seconds,
+                        admin_id: this.myId
                     }, {
                         headers: {
                             'Authorization': this.token
