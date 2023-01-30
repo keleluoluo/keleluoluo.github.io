@@ -123,9 +123,9 @@
                         tcpCandidatePolicy: 'disable',
                         IceTransportsType: 'nohost',
                     },
-                    wsAddress: 'wss://prod.lp.ejoydg.com/signaling/ws',
+                    wsAddress: 'ws://prod.lp.ejoydg.com/signaling/ws',
                     loginAttemptCount: 0,
-                    myId: '',
+                    myId: '10',
                     toId: '002',
                     pc: '',
                     localStream: '',
@@ -138,14 +138,14 @@
                     remoteUrl: '',
                     ishangup: false,
                     dataList: [],
-                    token: '',
+                    token: 'Bearer 261|RQJpQWkJqm4X219gsTX7psn3ZalXuiWh63awVOvz',
                     seconds: 0,
                     timer: null
                 }
             },
             created() {
-                this.myId = window.location.href.split('id=')[1].split('&token=')[0];
-                this.token = JSON.parse(decodeURIComponent(window.location.href.split('token=')[1]));
+                // this.myId = window.location.href.split('id=')[1].split('&token=')[0];
+                // this.token = JSON.parse(decodeURIComponent(window.location.href.split('token=')[1]));
                 this.first();
             },
             mounted() {
