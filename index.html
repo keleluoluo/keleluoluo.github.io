@@ -87,7 +87,7 @@
 
 <body>
     <div id="app">
-        <div v-if="show">指挥调度中心正在向您发起视频通话...</div>
+        <div v-if="show" class="textstyle">指挥调度中心正在向您发起视频通话...</div>
         <div v-if="ishangup" class="textstyle">对方已挂断</div>
         <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls playsinline></video>
         <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
