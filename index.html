@@ -325,6 +325,11 @@
                 handleHangup() {
                     console.log('hangup');
                     this.ishangup = true;
+                    setTimeout(() => {
+                        uni.reLaunch({
+                            url: '/pages/index/index'
+                        })
+                    }, 1000);
                     if (!this.pc) {
                         console.error('no peer connection');
                         return;
