@@ -87,6 +87,7 @@
 
 <body>
     <div id="app">
+        <div v-if="show">指挥调度中心正在向您发起视频通话...</div>
         <div v-if="ishangup" class="textstyle">对方已挂断</div>
         <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls playsinline></video>
         <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
@@ -126,7 +127,7 @@
                     },
                     wsAddress: 'wss://prod.lp.ejoydg.com/signaling/ws',
                     loginAttemptCount: 0,
-                    myId: '10',
+                    myId: '',
                     toId: '002',
                     pc: '',
                     localStream: '',
@@ -139,14 +140,15 @@
                     remoteUrl: '',
                     ishangup: false,
                     dataList: [],
-                    token: 'Bearer 261|RQJpQWkJqm4X219gsTX7psn3ZalXuiWh63awVOvz',
+                    token: '',
                     seconds: 10,
-                    timer: null
+                    timer: null,
+                    show: true
                 }
             },
             created() {
-                // this.myId = window.location.href.split('id=')[1].split('&token=')[0];
-                // this.token = JSON.parse(decodeURIComponent(window.location.href.split('token=')[1]));
+                this.myId = window.location.href.split('id=')[1].split('&token=')[0];
+                this.token = JSON.parse(decodeURIComponent(window.location.href.split('token=')[1]));
                 this.first();
             },
             mounted() {
@@ -368,6 +370,7 @@
                 },
 
                 acceptButton() {
+                    this.show = false;
                     clearInterval(this.timer)
                     this.timer = setInterval(() => {
                         this.seconds++;
