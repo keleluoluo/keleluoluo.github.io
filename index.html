@@ -102,6 +102,7 @@
     <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js"></script>
+    <script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js"></script>
     <script>
         new Vue({
             el: '#app',
@@ -328,8 +329,11 @@
                     console.log('hangup');
                     this.ishangup = true;
                     setTimeout(() => {
-                        uni.reLaunch({
-                            url: '/pages/index/index'
+                        uni.postMessage({
+                            data: {
+                                message: '我要退出!',
+                                type: 'outApp'
+                            }
                         })
                     }, 1000);
                     if (!this.pc) {
@@ -498,6 +502,11 @@
                     }).then(res => {
                         clearInterval(this.timer)
                         console.log(res);
+                        setTimeout(() => {
+                            uni.reLaunch({
+                                url: '/pages/index/index'
+                            })
+                        }, 1000);
                     }).catch(err => {
                         console.log(err);
                     })
