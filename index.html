@@ -87,12 +87,11 @@
 
 <body>
     <div id="app">
-        <div v-if="show && !ishangup" class="textstyle">指挥调度中心视频通话请求...</div>
-        <div v-if="ishangup && !show" class="textstyle">对方已挂断</div>
+        <div v-if="show" class="textstyle">指挥调度中心视频通话请求...</div>
         <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls playsinline></video>
         <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
         <div class="wrap">
-            <img class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="toggleCamera">
+            <img v-if="!show" class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="toggleCamera">
             <div class="circleButton">
                 <img v-if="!localStream" id="accept" @click="acceptButton" class="Connect" src="https://api.ejoydg.com/wximg/137.png" alt="">
                 <img class="hangUp" id="hangup" @click="hangupButton" src="https://api.ejoydg.com/wximg/139.png" alt="">
@@ -141,15 +140,11 @@
                     remoteUrl: '',
                     ishangup: false,
                     dataList: [],
-                    token: '',
-                    seconds: '',
-                    timer: null,
                     show: true
                 }
             },
             created() {
-                this.myId = window.location.href.split('id=')[1].split('&token=')[0];
-                this.token = 'Bearer ' + window.location.href.split('token=')[1];
+                this.myId = window.location.href.split('id=')[1];
                 this.first();
             },
             mounted() {
@@ -379,11 +374,6 @@
                         }
                     })
                     this.show = false;
-                    clearInterval(this.timer)
-                    this.timer = setInterval(() => {
-                        this.seconds++;
-                    }, 1000);
-                    this.acceptButton = true;
                     navigator.mediaDevices
                         .getUserMedia({
                             audio: true,
@@ -497,25 +487,11 @@
                         to: this.toId
                     });
                     uni.postMessage({
-                            data: {
-                                message: '通话结束',
-                                type: 'end'
-                            }
-                        })
-                        // axios.post('https://hle.tianview.com/api/accept/call/log', {
-                        //     call_duration: this.seconds,
-                        //     admin_id: this.myId
-                        // }, {
-                        //     headers: {
-                        //         'Authorization': this.token
-                        //     }
-                        // }).then(res => {
-                        //     clearInterval(this.timer)
-                        //     console.log(res);
-
-                    // }).catch(err => {
-                    //     console.log(err);
-                    // })
+                        data: {
+                            message: '通话结束',
+                            type: 'end'
+                        }
+                    })
                 },
 
                 send(msg) {
