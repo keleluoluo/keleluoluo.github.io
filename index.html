@@ -148,7 +148,7 @@
             },
             created() {
                 this.myId = window.location.href.split('id=')[1].split('&token=')[0];
-                this.token = JSON.parse(decodeURIComponent(window.location.href.split('token=')[1]));
+                this.token = 'Bearer ' + window.location.href.split('token=')[1];
                 this.first();
             },
             mounted() {
