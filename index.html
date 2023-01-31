@@ -91,7 +91,7 @@
         <video id="localVideo" :src="localUrl" ref="localVideo" autoplay controls playsinline></video>
         <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
         <div class="wrap">
-            <img v-show="!show" class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="toggleCamera">
+            <img class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="toggleCamera">
             <div class="circleButton">
                 <img v-if="!localStream" id="accept" @click="acceptButton" class="Connect" src="https://api.ejoydg.com/wximg/137.png" alt="">
                 <img class="hangUp" id="hangup" @click="hangupButton" src="https://api.ejoydg.com/wximg/139.png" alt="">
