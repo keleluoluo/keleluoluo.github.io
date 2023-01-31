@@ -142,7 +142,7 @@
                     ishangup: false,
                     dataList: [],
                     token: '',
-                    seconds: 10,
+                    seconds: '',
                     timer: null,
                     show: true
                 }
@@ -328,14 +328,12 @@
                 handleHangup() {
                     console.log('hangup');
                     this.ishangup = true;
-                    setTimeout(() => {
-                        uni.postMessage({
-                            data: {
-                                message: '我要退出!',
-                                type: 'outApp'
-                            }
-                        })
-                    }, 1000);
+                    uni.postMessage({
+                        data: {
+                            message: '通话结束',
+                            type: 'end'
+                        }
+                    })
                     if (!this.pc) {
                         console.error('no peer connection');
                         return;
@@ -374,6 +372,12 @@
                 },
 
                 acceptButton() {
+                    uni.postMessage({
+                        data: {
+                            message: '开始通话',
+                            type: 'start'
+                        }
+                    })
                     this.show = false;
                     clearInterval(this.timer)
                     this.timer = setInterval(() => {
@@ -492,24 +496,26 @@
                         from: this.myId,
                         to: this.toId
                     });
-                    axios.post('https://hle.tianview.com/api/accept/call/log', {
-                        call_duration: this.seconds,
-                        admin_id: this.myId
-                    }, {
-                        headers: {
-                            'Authorization': this.token
-                        }
-                    }).then(res => {
-                        clearInterval(this.timer)
-                        console.log(res);
-                        setTimeout(() => {
-                            uni.reLaunch({
-                                url: '/pages/index/index'
-                            })
-                        }, 1000);
-                    }).catch(err => {
-                        console.log(err);
-                    })
+                    uni.postMessage({
+                            data: {
+                                message: '通话结束',
+                                type: 'end'
+                            }
+                        })
+                        // axios.post('https://hle.tianview.com/api/accept/call/log', {
+                        //     call_duration: this.seconds,
+                        //     admin_id: this.myId
+                        // }, {
+                        //     headers: {
+                        //         'Authorization': this.token
+                        //     }
+                        // }).then(res => {
+                        //     clearInterval(this.timer)
+                        //     console.log(res);
+
+                    // }).catch(err => {
+                    //     console.log(err);
+                    // })
                 },
 
                 send(msg) {
