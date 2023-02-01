@@ -369,6 +369,12 @@
                 acceptButton() {
                     uni.postMessage({
                         data: {
+                            message: '音乐停止',
+                            type: 'stop'
+                        }
+                    })
+                    uni.postMessage({
+                        data: {
                             message: '开始通话',
                             type: 'start'
                         }
@@ -473,6 +479,12 @@
                 },
 
                 hangupButton() {
+                    uni.postMessage({
+                        data: {
+                            message: '音乐停止',
+                            type: 'stop'
+                        }
+                    })
                     if (this.pc) {
                         this.pc.close();
                         this.pc = null;
