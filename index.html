@@ -102,8 +102,8 @@
         <div v-show="show" class="textstyle">
             <span>指挥调度中心视频通话请求...</span>
         </div>
-        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay playsinline controls muted></video>
-        <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls muted></video>
+        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay playsinline controls></video>
+        <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
         <div class="wrap">
             <img class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="toggleCamera">
             <div class="circleButton">
@@ -155,9 +155,13 @@
                     ishangup: false,
                     dataList: [],
                     show: true,
+                    seconds: 0,
+                    timer: null,
+                    token: ''
                 }
             },
             created() {
+                console.log(navigator.userAgent)
                 this.myId = window.location.href.split('id=')[1];
                 this.first();
             },
@@ -381,6 +385,10 @@
                 },
 
                 acceptButton() {
+                    clearInterval(this.timer);
+                    this.timer = setInterval(() => {
+                        this.seconds++;
+                    }, 1000);
                     uni.postMessage({
                         data: {
                             message: '音乐停止',
@@ -517,6 +525,19 @@
                             message: '通话结束',
                             type: 'end'
                         }
+                    })
+                    axios.post('https://hle.tianview.com/api/accept/call/log', {
+                        call_duration: this.seconds,
+                        admin_id: this.myId
+                    }, {
+                        headers: {
+                            'Authorization': this.token
+                        }
+                    }).then(res => {
+                        clearInterval(this.timer)
+                        console.log(res);
+                    }).catch(err => {
+                        console.log(err);
                     })
                 },
 
