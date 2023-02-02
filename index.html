@@ -77,15 +77,15 @@
             position: fixed;
             left: 0;
             right: 0;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 0;
+            height: 100vh;
+            /* transform: translateY(-50%); */
             /* transform: translate(-50%, -50%); */
             z-index: 10;
             color: #fff;
             font-size: 14px;
             background-color: #000;
             width: 100vw;
-            height: 400px;
             text-align: center;
         }
     </style>
@@ -94,8 +94,8 @@
 <body>
     <div id="app">
         <div v-show="show" class="textstyle">指挥调度中心视频通话请求...</div>
-        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay playsinline></video>
-        <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay></video>
+        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay playsinline controls></video>
+        <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
         <div class="wrap">
             <img class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="toggleCamera">
             <div class="circleButton">
