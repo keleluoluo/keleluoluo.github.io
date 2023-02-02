@@ -88,12 +88,19 @@
             width: 100vw;
             text-align: center;
         }
+        
+        .textstyle span {
+            color: #fff;
+            margin: 500px auto;
+        }
     </style>
 </head>
 
 <body>
     <div id="app">
-        <div v-show="show" class="textstyle">指挥调度中心视频通话请求...</div>
+        <div v-show="show" class="textstyle">
+            <span>指挥调度中心视频通话请求...</span>
+        </div>
         <video id="localVideo" :src="localUrl" ref="localVideo" autoplay playsinline controls></video>
         <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
         <div class="wrap">
