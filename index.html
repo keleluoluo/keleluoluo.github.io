@@ -102,8 +102,8 @@
         <div v-show="show" class="textstyle">
             <span>指挥调度中心视频通话请求...</span>
         </div>
-        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay playsinline controls></video>
-        <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls></video>
+        <video id="localVideo" :src="localUrl" ref="localVideo" autoplay playsinline controls muted></video>
+        <video :class="isaccept?'zindexClass':''" id="remoteVideo" ref="remoteVideo" autoplay controls muted></video>
         <div class="wrap">
             <img class="Flip" src="https://api.ejoydg.com/wximg/138.png" alt="" @click="toggleCamera">
             <div class="circleButton">
