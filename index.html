@@ -157,12 +157,14 @@
                     show: true,
                     seconds: 0,
                     timer: null,
-                    token: ''
+                    token: '',
+                    platform: ''
                 }
             },
             created() {
-                console.log(navigator.userAgent)
-                this.myId = window.location.href.split('id=')[1];
+                this.myId = window.location.href.split('id=')[1].split('&token')[0];
+                this.token = 'Bearer' + window.location.href.split('token=')[1].split('&platform')[0];
+                this.platform = window.location.href.split('&platform=')[1];
                 this.first();
             },
             mounted() {
@@ -385,22 +387,26 @@
                 },
 
                 acceptButton() {
-                    clearInterval(this.timer);
-                    this.timer = setInterval(() => {
-                        this.seconds++;
-                    }, 1000);
-                    uni.postMessage({
-                        data: {
-                            message: '音乐停止',
-                            type: 'stop'
-                        }
-                    })
-                    uni.postMessage({
-                        data: {
-                            message: '开始通话',
-                            type: 'start'
-                        }
-                    })
+                    if (this.platform == 2) {
+                        //ios
+                        uni.postMessage({
+                            data: {
+                                message: '音乐停止',
+                                type: 'stop'
+                            }
+                        })
+                        uni.postMessage({
+                            data: {
+                                message: '开始通话',
+                                type: 'start'
+                            }
+                        })
+                    } else {
+                        clearInterval(this.timer);
+                        this.timer = setInterval(() => {
+                            this.seconds++;
+                        }, 1000);
+                    }
                     this.show = false;
                     navigator.mediaDevices
                         .getUserMedia({
@@ -501,12 +507,35 @@
                 },
 
                 hangupButton() {
-                    uni.postMessage({
-                        data: {
-                            message: '音乐停止',
-                            type: 'stop'
-                        }
-                    })
+                    if (this.platform == 2) {
+                        //ios
+                        uni.postMessage({
+                            data: {
+                                message: '音乐停止',
+                                type: 'stop'
+                            }
+                        })
+                        uni.postMessage({
+                            data: {
+                                message: '通话结束',
+                                type: 'end'
+                            }
+                        })
+                    } else {
+                        clearInterval(this.timer);
+                        axios.post('https://hle.tianview.com/api/accept/call/log', {
+                            call_duration: this.seconds,
+                            admin_id: this.myId
+                        }, {
+                            headers: {
+                                'Authorization': this.token
+                            }
+                        }).then(res => {
+                            console.log(res);
+                        }).catch(err => {
+                            console.log(err);
+                        })
+                    }
                     if (this.pc) {
                         this.pc.close();
                         this.pc = null;
@@ -520,25 +549,6 @@
                         from: this.myId,
                         to: this.toId
                     });
-                    uni.postMessage({
-                        data: {
-                            message: '通话结束',
-                            type: 'end'
-                        }
-                    })
-                    axios.post('https://hle.tianview.com/api/accept/call/log', {
-                        call_duration: this.seconds,
-                        admin_id: this.myId
-                    }, {
-                        headers: {
-                            'Authorization': this.token
-                        }
-                    }).then(res => {
-                        clearInterval(this.timer)
-                        console.log(res);
-                    }).catch(err => {
-                        console.log(err);
-                    })
                 },
 
                 send(msg) {
